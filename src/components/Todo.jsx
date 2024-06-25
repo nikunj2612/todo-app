@@ -1,0 +1,213 @@
+import React, { useEffect, useState } from 'react';
+import { Button, Card, Checkbox, Divider, Dropdown, Form, Input, Modal, Space, Tag, Typography } from 'antd';
+import { v4 as uuidv4 } from 'uuid';
+import { DeleteOutlined, DownOutlined } from '@ant-design/icons';
+import { useDrop } from 'react-dnd';
+import CustomCard from './CustomCard';
+
+// localStorage.setItem("todosLocal", JSON.stringify(todoList));
+const todosLocal = JSON.parse(localStorage.getItem('todosLocal') || JSON.stringify(todoList));
+console.log('local todos', todosLocal);
+
+export function TodoList({ todos, setTodos, title, status, moveTask, allTodo }) {
+  const getColor = (status) => {
+    switch (status) {
+      case 1:
+        return '#ff7f75';
+      case 2:
+        return 'orange';
+      case 3:
+        return 'green';
+      default:
+        return 'gray';
+    }
+  };
+
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: 'TASK',
+    drop: (item) => moveTask(item.id, status),
+    collect: (monitor) => ({
+      isOver: !!monitor.isOver(),
+    }),
+  }));
+  return (
+    <div
+      className="todo-status column"
+      ref={drop}
+      style={{
+        // border: '1px solid #ccc',
+        minWidth: '200px',
+        backgroundColor: isOver ? '#e9e9e9' : 'white',
+        height: '80vh',
+        borderRadius: '10px',
+        // overflowY: 'auto',
+      }}
+    >
+      <Card title={title} style={{ border: 'none', height: 'calc(100vh - 264px)' }}>
+        {todos &&
+          todos.map((todo) => {
+            return (
+              <div
+                className="todo-status column"
+                key={todo.category_id}
+                style={{ borderLeft: `5px solid ${getColor(todo?.status)}` }}
+              >
+                <CustomCard
+                  category_id={todo.category_id}
+                  title={todo?.name}
+                  skills={todo?.skills}
+                  status={todo?.status}
+                  todos={todos}
+                  setTodos={setTodos}
+                  allTodo={allTodo}
+                />
+              </div>
+            );
+          })}
+      </Card>
+    </div>
+  );
+}
+
+export default function Todo() {
+  const [todos, setTodos] = useState(todosLocal);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [todo, setTodo] = useState({ category_id: uuidv4(), name: '', skills: [], status: 1 });
+  const [status, setStatus] = useState(1);
+  const [skills, setSkills] = useState([]);
+
+  useEffect(() => {
+    localStorage.setItem('todosLocal', JSON.stringify(todos));
+  }, [todos]);
+
+  const moveTask = (id, newStatus) => {
+    console.log('[moveTask]', id, newStatus);
+    setTodos((prevTasks) => prevTasks.map((task) => (task.category_id === id ? { ...task, status: newStatus } : task)));
+    setStatus(1);
+  };
+
+  function handleInput(e) {
+    setTodo({ category_id: !setIsEditing ? uuidv4() : todo.category_id, name: e.target.value });
+  }
+
+  function addEditItem(e) {
+    if (todo?.name == '') {
+      alert('Please enter task.');
+      return;
+    }
+    console.log('todo', todo, isEditing, e.target.value);
+    if (!isEditing) {
+      console.log('local TODO', todosLocal);
+      setTodos([
+        ...todos,
+        { category_id: uuidv4(), name: todo.name, skills: skills, status: status ? Number(status) : 1 },
+      ]);
+      localStorage.setItem(
+        'todosLocal',
+        JSON.stringify([
+          ...todos,
+          { category_id: uuidv4(), name: todo.name, skills: skills, status: status ? Number(status) : 1 },
+        ]),
+      );
+      console.log('local TODO', todosLocal);
+      setTodo({ ...todo, name: '' });
+    } else {
+      console.log('up todos', todos, todo);
+      const updatedTodos = todos.map((t) => {
+        return t.category_id === todo.category_id ? todo : t;
+      });
+      setTodos(updatedTodos);
+      localStorage.setItem('todosLocal', JSON.stringify(updatedTodos));
+      setTodo({ ...todo, name: '' });
+      setIsEditing(false);
+    }
+    setStatus(1);
+    setSkills([]);
+  }
+
+  const handleChange = (event) => {
+    setStatus(event.target.value);
+  };
+
+  const onChange = (checkedValues) => {
+    setSkills(checkedValues);
+    console.log('checked = ', checkedValues);
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key == 'Enter') {
+      addEditItem(event);
+    }
+  };
+
+  const skillOPtions = ['Product Sync', 'Dev Team', 'Tech', 'Requirement'];
+  const getTodosByStatus = (status) => todos.filter((task) => task.status === status);
+
+  return (
+    <div>
+      <p>Todo List</p>
+      <div className="button-header">
+        <>
+          <div className="todo-header">
+            <Input
+              onChange={handleInput}
+              value={todo.name}
+              placeholder="Enter your task"
+              onKeyDown={(event) => handleKeyDown(event)}
+            />
+            <div className="todo-check-add">
+              <Checkbox.Group
+                options={skillOPtions}
+                defaultValue={skills}
+                onChange={onChange}
+                style={{ display: 'flex', alignItems: 'center' }}
+              />
+              <div style={{ display: 'flex', gap: '20px' }}>
+                <select
+                  value={status}
+                  onChange={handleChange}
+                  style={{ padding: '2px 20px', border: '1px solid #e1e1e1' }}
+                >
+                  <option value={1}>To Do</option>
+                  <option value={2}>Doing</option>
+                  <option value={3}>Done</option>
+                </select>
+                <Button type="primary" onClick={(e) => addEditItem(e)}>
+                  + Add Task
+                </Button>
+              </div>
+            </div>
+          </div>
+        </>
+      </div>
+      <Divider />
+      <div className="todos">
+        <TodoList
+          todos={getTodosByStatus(1)}
+          setTodos={setTodos}
+          title="🎯 To Do"
+          status={1}
+          moveTask={moveTask}
+          allTodo={todos}
+        />
+        <TodoList
+          todos={getTodosByStatus(2)}
+          setTodos={setTodos}
+          title="🌟 Doing"
+          status={2}
+          moveTask={moveTask}
+          allTodo={todos}
+        />
+        <TodoList
+          todos={getTodosByStatus(3)}
+          setTodos={setTodos}
+          title="✅ Done"
+          status={3}
+          moveTask={moveTask}
+          allTodo={todos}
+        />
+      </div>
+    </div>
+  );
+}
