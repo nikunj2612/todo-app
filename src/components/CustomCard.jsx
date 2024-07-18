@@ -1,9 +1,17 @@
-import { DeleteOutlined } from '@ant-design/icons';
-import { Avatar, Drawer, Input, Tag } from 'antd';
-import { useState } from 'react';
-import { useDrag } from 'react-dnd';
+import { DeleteOutlined } from "@ant-design/icons";
+import { Avatar, Drawer, Input, Tag } from "antd";
+import { useState } from "react";
+import { useDrag } from "react-dnd";
 
-export default function CustomCard({ category_id, title, skills, status, todos, setTodos, allTodo }) {
+export default function CustomCard({
+  category_id,
+  title,
+  skills,
+  status,
+  todos,
+  setTodos,
+  allTodo,
+}) {
   const [open, setOpen] = useState(false);
 
   const showDrawer = () => {
@@ -15,7 +23,7 @@ export default function CustomCard({ category_id, title, skills, status, todos, 
   };
 
   const [{ isDragging }, drag] = useDrag(() => ({
-    type: 'TASK',
+    type: "TASK",
     item: { id: category_id, status: status },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
@@ -23,26 +31,26 @@ export default function CustomCard({ category_id, title, skills, status, todos, 
   }));
   const getColor = (skill) => {
     switch (skill) {
-      case 'Product Sync':
-        return 'green';
-      case 'Dev Team':
-        return 'blue';
-      case 'Tech':
-        return 'orange';
-      case 'Requirement':
-        return 'red';
+      case "Product Sync":
+        return "green";
+      case "Dev Team":
+        return "blue";
+      case "Tech":
+        return "orange";
+      case "Requirement":
+        return "red";
       default:
-        return 'gray';
+        return "gray";
     }
   };
 
   const deleteCategory = (id) => {
     console.log(id);
-    console.log('[deleteCategory] --> todos', allTodo);
+    console.log("[deleteCategory] --> todos", allTodo);
     const newTodos = allTodo.filter((t) => t.category_id != id);
-    console.log('[deleteCategory] --> newTodos', newTodos);
+    console.log("[deleteCategory] --> newTodos", newTodos);
     setTodos(newTodos);
-    localStorage.setItem('todosLocal', JSON.stringify(newTodos));
+    localStorage.setItem("todosLocal", JSON.stringify(newTodos));
   };
 
   return (
@@ -51,14 +59,15 @@ export default function CustomCard({ category_id, title, skills, status, todos, 
         ref={drag}
         style={{
           opacity: isDragging ? 0.5 : 1,
-          boxShadow: 'rgba(0, 0, 0, 0.1) 0px 0px 5px 0px, rgba(0, 0, 0, 0.1) 0px 0px 1px 0px',
-          padding: '10px',
-          marginBottom: '20px',
+          boxShadow:
+            "rgba(0, 0, 0, 0.1) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 0px 1px 0px",
+          padding: "10px",
+          marginBottom: "20px",
         }}
         onClick={showDrawer}
       >
         <strong>{title}</strong>
-        <div className="card-bottom">
+        <div className='card-bottom'>
           <div>
             {skills?.length > 0 &&
               skills.map((skill, index) => (
@@ -71,8 +80,8 @@ export default function CustomCard({ category_id, title, skills, status, todos, 
         </div>
       </div>
       <Drawer title={title} onClose={onClose} open={open}>
-        <div className="ticket-drawer-category">
-          <strong style={{ marginRight: '10px' }}>Categories : </strong>
+        <div className='ticket-drawer-category'>
+          <strong style={{ marginRight: "10px" }}>Categories : </strong>
           <div>
             {skills?.length > 0 &&
               skills.map((skill, index) => (
@@ -82,9 +91,9 @@ export default function CustomCard({ category_id, title, skills, status, todos, 
               ))}
           </div>
         </div>
-        <div style={{ display: 'flex', marginTop: '20px', gap: '10px' }}>
+        <div style={{ display: "flex", marginTop: "20px", gap: "10px" }}>
           <Avatar>N</Avatar>
-          <Input placeholder="Write a comment" />
+          <Input placeholder='Write a comment' />
         </div>
       </Drawer>
     </>
