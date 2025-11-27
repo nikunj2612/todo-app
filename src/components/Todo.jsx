@@ -1,22 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Card,
-  Checkbox,
-  Divider,
-  Dropdown,
-  Form,
-  Input,
-  Modal,
-  Select,
-  Space,
-  Tag,
-  Typography,
-} from "antd";
+import { Button, Card, Checkbox, Divider, Input, Select } from "antd";
 import { v4 as uuidv4 } from "uuid";
-// import { DeleteOutlined, DownOutlined } from "@ant-design/icons";
 import { useDrop } from "react-dnd";
 import CustomCard from "./CustomCard";
+import { PiStarOfDavidDuotone } from "react-icons/pi";
 
 // localStorage.setItem("todosLocal", JSON.stringify(todoList));
 const todosLocal = JSON.parse(
@@ -31,6 +18,7 @@ export function TodoList({
   status,
   moveTask,
   allTodo,
+  setTodo,
 }) {
   const getColor = (status) => {
     switch (status) {
@@ -57,17 +45,19 @@ export function TodoList({
       className='todo-status column'
       ref={drop}
       style={{
-        // border: '1px solid #ccc',
         minWidth: "200px",
-        backgroundColor: isOver ? "#e9e9e9" : "white",
-        height: "80vh",
+        backgroundColor: isOver ? "#e1eeff" : "#eff3f8",
+        height: "77vh",
         borderRadius: "10px",
-        // overflowY: 'auto',
       }}
     >
       <Card
         title={title}
-        style={{ border: "none", height: "calc(100vh - 264px)" }}
+        style={{
+          border: "none",
+          height: "calc(100vh - 280px)",
+          backgroundColor: "inherit",
+        }}
       >
         {todos &&
           todos.map((todo) => {
@@ -75,7 +65,7 @@ export function TodoList({
               <div
                 className='todo-status column'
                 key={todo.category_id}
-                style={{ borderLeft: `5px solid ${getColor(todo?.status)}` }}
+                style={{ borderLeft: `3px solid ${getColor(todo?.status)}` }}
               >
                 <CustomCard
                   category_id={todo.category_id}
@@ -85,6 +75,7 @@ export function TodoList({
                   todos={todos}
                   setTodos={setTodos}
                   allTodo={allTodo}
+                  setTodo={setTodo}
                 />
               </div>
             );
@@ -195,7 +186,9 @@ export default function Todo() {
 
   return (
     <div>
-      <p>Todo List</p>
+      <h2 className='app-header-title'>
+        <PiStarOfDavidDuotone style={{ color: "#1677ff" }} /> Daily Organizer
+      </h2>
       <div className='button-header'>
         <>
           <div className='todo-header'>
@@ -253,6 +246,7 @@ export default function Todo() {
           status={1}
           moveTask={moveTask}
           allTodo={todos}
+          setTodo={setTodo}
         />
         <TodoList
           todos={getTodosByStatus(2)}
@@ -261,6 +255,7 @@ export default function Todo() {
           status={2}
           moveTask={moveTask}
           allTodo={todos}
+          setTodo={setTodo}
         />
         <TodoList
           todos={getTodosByStatus(3)}
@@ -269,6 +264,7 @@ export default function Todo() {
           status={3}
           moveTask={moveTask}
           allTodo={todos}
+          setTodo={setTodo}
         />
       </div>
     </div>
